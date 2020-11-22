@@ -1,0 +1,10 @@
+[[rules]]
+name = "Golang"
+glob = "*.go"
+action = "put"
+
+[[rules.pipeline]]
+exec = "go fmt $file"
+
+[[rules.pipeline]]
+exec = "echo 'Done formatting $file'"
