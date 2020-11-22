@@ -21,13 +21,17 @@ type Config struct {
 	Rules     []Rule
 }
 
-func ReadConfig(path string) (*Config, error) {
+func ReadConfigFile(path string) (*Config, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
+	return NewConfig(data)
+}
+
+func NewConfig(data []byte) (*Config, error) {
 	cfg := &Config{}
-	err = toml.Unmarshal(data, cfg)
+	err := toml.Unmarshal(data, cfg)
 	if err != nil {
 		return nil, err
 	}
