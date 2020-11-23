@@ -21,6 +21,11 @@ type Config struct {
 	Rules     []Rule
 }
 
+func (cfg *Config) RulesForAction(action string) ([]*Rule, bool) {
+	rules, ok := cfg.actionmap[action]
+	return rules, ok
+}
+
 func ReadConfigFile(path string) (*Config, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
