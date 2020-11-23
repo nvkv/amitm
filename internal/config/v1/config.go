@@ -6,13 +6,13 @@ import (
 )
 
 type PipelineStep struct {
-	Exec string
+	Exec []string
 }
 
 type Rule struct {
 	Name     string
 	Action   string
-	Glob     string
+	Globs    []string
 	Pipeline []PipelineStep
 }
 
@@ -41,8 +41,8 @@ func NewConfig(data []byte) (*Config, error) {
 		return nil, err
 	}
 	cfg.actionmap = make(map[string][]*Rule)
-	for _, rule := range cfg.Rules {
-		cfg.actionmap[rule.Action] = append(cfg.actionmap[rule.Action], &rule)
+	for i, rule := range cfg.Rules {
+		cfg.actionmap[rule.Action] = append(cfg.actionmap[rule.Action], &cfg.Rules[i])
 	}
 	return cfg, nil
 }

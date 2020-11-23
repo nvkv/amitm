@@ -1,10 +1,18 @@
 [[rules]]
 name = "Golang"
-glob = "*.go"
+globs = ["*.go"]
 action = "put"
 
 [[rules.pipeline]]
-exec = "go fmt $file"
+exec = ["go", "fmt", "$file"]
 
 [[rules.pipeline]]
-exec = "echo 'Done formatting $file'"
+exec = ["echo", "'Done formatting $file'"]
+
+[[rules]]
+name = "Terraform"
+globs = ["*.tf", "*.tfvars"]
+action = "put"
+
+[[rules.pipeline]]
+exec = ["terraform13", "fmt", "$file"]
