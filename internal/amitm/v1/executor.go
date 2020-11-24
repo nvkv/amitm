@@ -1,4 +1,4 @@
-package executor
+package amitm
 
 import (
 	"9fans.net/go/acme"
@@ -14,28 +14,24 @@ func Match(rules []*config.Rule, event acme.LogEvent) []*config.Rule {
 	var toApply []*config.Rule
 
 	for _, rule := range rules {
-		var applicable = false
 		for _, glob := range rule.Globs {
 			ok, _ := filepath.Match(glob, filepath.Base(event.Name))
 			if ok {
-				applicable = true
+				toApply = append(toApply, rule)
 				break
 			}
-		}
-		if applicable {
-			toApply = append(toApply, rule)
 		}
 	}
 	return toApply
 }
 
-func Apply(rule *config.Rule, op, file string) ([]byte, error) {
-	if op != rule.Action {
+func Apply(rule *config.Rule, event acme.LogEvent) ([]byte, error) {
+	if event.Op != rule.Action {
 		return nil, fmt.Errorf(
 			"action mismatch. Can't apply rule for %s to operation %s on file %s",
 			rule.Action,
-			op,
-			file,
+			event.Op,
+			event.Name,
 		)
 	}
 
@@ -49,7 +45,7 @@ func Apply(rule *config.Rule, op, file string) ([]byte, error) {
 			copy(args, origArgs)
 
 			for i, arg := range args {
-				args[i] = strings.Replace(arg, "$file", file, -1)
+				args[i] = strings.Replace(arg, "$file", event.Name, -1)
 			}
 
 			cmd := exec.Command(prog, args...)
@@ -60,5 +56,10 @@ func Apply(rule *config.Rule, op, file string) ([]byte, error) {
 			}
 		}
 	}
+	w, err := acme.Open(event.ID, nil)
+	if err != nil {
+		return output, err
+	}
+	_ = w.Ctl("get")
 	return output, nil
 }
