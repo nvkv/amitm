@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"9fans.net/go/acme"
-	"git.sr.ht/~nvkv/amitm/internal/config/v1"
+	"github.com/nvkv/amitm/internal/config/v1"
 )
 
 func Match(rules []*config.Rule, event acme.LogEvent) []*config.Rule {

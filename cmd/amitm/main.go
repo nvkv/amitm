@@ -1,22 +1,40 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
+	"os"
+	"path"
 
 	"9fans.net/go/acme"
-	"git.sr.ht/~nvkv/amitm/internal/amitm/v1"
-	"git.sr.ht/~nvkv/amitm/internal/config/v1"
+	"github.com/nvkv/amitm/internal/amitm/v1"
+	"github.com/nvkv/amitm/internal/config/v1"
 )
 
 func main() {
+	var cpathptr = flag.String("config", "", `Path to the config file.
+If not provided will default to $HOME/.amitm.toml`)
+
+	flag.Parse()
+	configPath := *cpathptr
+
+	if len(configPath) == 0 {
+		home := os.Getenv("HOME")
+		if len(home) == 0 {
+			log.Fatal("Amitm can't figure out config path. Consider to provide it using -config")
+		}
+		configPath = path.Join(home, ".amitm.toml")
+	}
+
 	l, err := acme.Log()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	config, err := config.ReadConfigFile("./examples/amitm.toml")
+	config, err := config.ReadConfigFile(configPath)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(fmt.Sprintf("Amitm can't read config file: %s", err))
 	}
 
 	for {
