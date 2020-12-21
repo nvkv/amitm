@@ -7,7 +7,7 @@ action = "put"
 exec = ["go", "fmt", "$file"]
 
 [[rules.pipeline]]
-exec = ["echo", "'Done formatting $file'"]
+exec = ["goimports", "-w", "$file"]
 
 [[rules]]
 name = "Terraform"

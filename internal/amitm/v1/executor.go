@@ -1,13 +1,13 @@
 package amitm
 
 import (
-	"9fans.net/go/acme"
-	"git.sr.ht/~nvkv/amitm/internal/config/v1"
-
 	"fmt"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"9fans.net/go/acme"
+	"git.sr.ht/~nvkv/amitm/internal/config/v1"
 )
 
 func Match(rules []*config.Rule, event acme.LogEvent) []*config.Rule {
@@ -37,6 +37,11 @@ func Apply(rule *config.Rule, event acme.LogEvent) ([]byte, error) {
 
 	var output []byte
 
+	w, err := acme.Open(event.ID, nil)
+	if err != nil {
+		return output, err
+	}
+
 	for _, step := range rule.Pipeline {
 		if len(step.Exec) > 0 {
 			prog := step.Exec[0]
@@ -50,16 +55,14 @@ func Apply(rule *config.Rule, event acme.LogEvent) ([]byte, error) {
 
 			cmd := exec.Command(prog, args...)
 			out, err := cmd.CombinedOutput()
+
 			output = append(output, out...)
 			if err != nil {
 				return output, err
 			}
 		}
 	}
-	w, err := acme.Open(event.ID, nil)
-	if err != nil {
-		return output, err
-	}
+
 	_ = w.Ctl("get")
 	return output, nil
 }
